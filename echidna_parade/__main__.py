@@ -129,6 +129,11 @@ def parse_args():
         action="store_true",
         help="Kill echidna subprocesses if they do not finish on time. Useful for a fair benchmarking.",
     )
+    parser.add_argument(
+        "--bench-until-first-fail",
+        action="store_true",
+        help="run campaign until the first property violation is detected"
+    )
     parsed_args = parser.parse_args(sys.argv[1:])
     return (parsed_args, parser)
 

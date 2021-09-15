@@ -106,6 +106,7 @@ def run_campaign(config):
     failed_props = {}
     start = time.time()
     elapsed = time.time() - start
+    stop_now = False
 
     if config.resume is None:
         print()
@@ -120,6 +121,8 @@ def run_campaign(config):
             print(pname, "FAILED")
             detect_echidna_fail(failed_props, pname)
             failures.append(pname + "/echidna.out")
+            if config.bench_until_first_fail:
+                stop_now = True
 
     generation = 1
     if config.resume is None:
@@ -132,7 +135,7 @@ def run_campaign(config):
         print("RESUMING PARADE AT GENERATION", generation)
 
     elapsed = time.time() - start
-    while (config.timeout == -1) or (elapsed < config.timeout):
+    while not stop_now and ((config.timeout == -1) or (elapsed < config.timeout)):
         print()
         print(
             "SWARM GENERATION #" + str(generation) + ": ELAPSED TIME",
@@ -171,12 +174,14 @@ def run_campaign(config):
                         print(pname, "FAILED")
                         detect_echidna_fail(failed_props, pname)
                         failures.append(pname + "/echidna.out")
+                        if config.bench_until_first_fail:
+                            stop_now = True
             for d in done:
                 ps.remove(d)
             gen_elapsed = time.time() - gen_start
-            if (config.no_wait) and (
+            if stop_now or ((config.no_wait) and (
                 gen_elapsed > (config.gen_time + 60)
-            ):  # full 60 second fudge factor here!
+            )):  # full 60 second fudge factor here!
                 print("Generation still running after timeout!  Killing echidna...")
                 for (pname, p, outf) in ps:
                     outf.close()

@@ -96,6 +96,9 @@ def generate_echidna_config(
             for k in base:
                 new_config[k] = base[k]
 
+    if config.bench_until_first_fail:
+        new_config["stopOnFail"] = True
+
     return new_config
 
 
